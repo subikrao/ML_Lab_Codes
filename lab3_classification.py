@@ -1,5 +1,9 @@
 from sklearn import preprocessing
 from scipy.spatial import distance
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix, classification_report
 import pandas as pd
 import numpy as np
 import statistics as st
@@ -79,7 +83,7 @@ std_vector_0 = (class_0.std().values).tolist()
 std_vector_2 = (class_2.std().values).tolist()
 
 distance = np.linalg.norm(avg_vector_0 - avg_vector_2)
-print(distance)
+print("\n Euclidean distance between the 2 class centroid is = ",distance,"\n")
 
 '''
 A2. Take any feature from your dataset. 
@@ -124,3 +128,108 @@ mp.ylabel('minkowski distance')
 mp.title('Plot of minkowski distances with r from 1 to 10: ')
 mp.grid(True)
 mp.show()
+
+'''
+A4. Divide dataset in your project into two parts - train & test set. 
+To accomplish this, use the train_test_split() function available in SciKit. 
+See below sample code for help:
+>>> import numpy as np
+>>> from sklearn.model_selection import train_test_split
+>>> X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.3)
+X is the feature vector set for your project and y is the class levels for vectors present in X.
+Note: Before set split, make sure you have only two classes. 
+If your project deals with multi-class problem, take any two classes from them.
+'''
+#choosing 2 classes. class 0-incorrect and class 2-correct
+class1_removed_set = numeric_dtrain[numeric_dtrain['class_encoded'].isin([0 , 2])]
+X = class1_removed_set.iloc[0:, 0:-1]
+Y = class1_removed_set['class_encoded']
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
+Y_test = pd.DataFrame(Y_test)
+# class1_removed_set.to_excel('random.xlsx', index=False)
+# X_test.to_excel('random_X_test.xlsx', index=False)
+# Y_test.to_excel('random_Y_test.xlsx', index=False)
+
+'''
+A5. Train a kNN classifier (k = 3) using the training set obtained from above exercise. 
+Following code for help:
+>>> import numpy as np
+>>> from sklearn.neighbors import KNeighborsClassifier
+>>> neigh = KNeighborsClassifier(n_neighbors=3)
+>>> neigh.fit(X, y)
+
+'''
+neigh = KNeighborsClassifier(n_neighbors=3)
+neigh.fit(X_train, Y_train)
+
+'''
+A6. Test the accuracy of the kNN using the test set obtained from above exercise. 
+Following code for help.
+>>> neigh.score(X_test, y_test)
+
+'''
+accuracy = neigh.score(X_test, Y_test)
+print("kNN classifier ( with k=3) :\nAccuracy of the kNN =", accuracy)
+
+'''
+A7. Use the predict() function to study the prediction behavior of the classifier for test vectors.
+>>> neigh.predict(X_test)
+Perform classification for a given vector using neigh.predict(<<test_vect>>). 
+This shall produce the class of the test vector (test_vect is any feature vector from your test set).
+
+'''
+arr= X_test.iloc[34]
+predicted_class = neigh.predict([arr])
+
+print("Predicted Class:", predicted_class)
+
+'''
+A8. Make k = 1 to implement NN classifier and compare the results with kNN (k = 3). 
+Vary k from 1 to 11 and make an accuracy plot.
+
+'''
+neigh1 = KNeighborsClassifier(n_neighbors=1)
+neigh1.fit(X_train, Y_train)
+Ps = neigh1.predict(X_test)    
+accuracy1 = accuracy_score(Y_test, Ps)
+print("NN classifier ( with k=1) :\nAccuracy of the kNN =", accuracy1)
+
+new_accuracy_vals = []
+for k in range(1, 12):
+    neigh2 = KNeighborsClassifier(n_neighbors=k)
+    neigh2.fit(X_train, Y_train)
+    predictions = neigh2.predict(X_test)    
+    accuracy_k = accuracy_score(Y_test, predictions)
+    new_accuracy_vals.append(accuracy_k)
+
+mp.plot([1,2,3,4,5,6,7,8,9,10,11], new_accuracy_vals, marker='o')
+mp.title('Accuracy plot for k-NN Classifier')
+mp.xlabel('k value')
+mp.ylabel('Accuracy value')
+mp.grid(True)
+mp.xticks(range(0, 12))
+mp.show()
+
+
+'''
+A9. Please evaluate confusion matrix for your classification problem. 
+From confusion matrix, the other performance metrics such as precision, recall and F1-Score measures for both training and test data. 
+Based on your observations, infer the models learning outcome (underfit / regularfit / overfit).
+'''
+
+neigh3 = KNeighborsClassifier(n_neighbors=5)
+neigh3.fit(X_train, Y_train)
+train_predictions = neigh3.predict(X_train)
+test_predictions = neigh3.predict(X_test)
+
+train_confusion_matrix = confusion_matrix(Y_train, train_predictions)
+test_confusion_matrix = confusion_matrix(Y_test, test_predictions)
+
+train_classification_report = classification_report(Y_train, train_predictions)
+test_classification_report = classification_report(Y_test, test_predictions)
+
+print("Confusion Matrix for Training Data :\n", train_confusion_matrix)
+print("Confusion Matrix for Testing Data :\n", test_confusion_matrix)
+print("\nClassification Report for Training Data):\n", train_classification_report)
+print("\nClassification Report for Testing Data):\n", test_classification_report)
+print("Since this model has same performance and it gives good results on both training and test data, it is a regular fit.")
