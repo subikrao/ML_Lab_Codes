@@ -140,15 +140,15 @@ X is the feature vector set for your project and y is the class levels for vecto
 Note: Before set split, make sure you have only two classes. 
 If your project deals with multi-class problem, take any two classes from them.
 '''
-#choosing 2 classes. class 0-incorrect and class 2-correct
+#choosing 2 classes. class 0-incorrect and class 2-correct. removing class 1-partially correct
 class1_removed_set = numeric_dtrain[numeric_dtrain['class_encoded'].isin([0 , 2])]
-X = class1_removed_set.iloc[0:, 0:-1]
+X = class1_removed_set.iloc[0:, 0:-2]
 Y = class1_removed_set['class_encoded']
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3)
 Y_test = pd.DataFrame(Y_test)
-# class1_removed_set.to_excel('random.xlsx', index=False)
-# X_test.to_excel('random_X_test.xlsx', index=False)
-# Y_test.to_excel('random_Y_test.xlsx', index=False)
+class1_removed_set.to_excel('class0and2_data.xlsx', index=False)
+X_test.to_excel('X_test_data.xlsx', index=False)
+Y_test.to_excel('Y_test_data.xlsx', index=False)
 
 '''
 A5. Train a kNN classifier (k = 3) using the training set obtained from above exercise. 
