@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as mp
 import math
+from sklearn.neural_network import MLPClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report
 '''
 A1. DEVELOP A PERCEPTRON FOR AND GATE LOGIC
     Identify no. of epochs needed to reach converged learning
@@ -508,3 +511,47 @@ print(perceptron_predictions)
 print("Pseudo inverse predictions:")
 print(pseudo_predictions)
 print("We can see that both of them produce accurate results.")
+
+''' 
+A10. Learn using a MLP network from Sci-Kit
+repeat the AND Gate and XOR Gate exercises using MLPClassifier() function.
+'''
+# AND GATE
+X_and = AND_df.iloc[0:, 0:2]
+Y_and = AND_df.iloc[0:, 2]
+#splitting the data into training and testing sets
+X_and_train, X_and_test, Y_and_train, Y_and_test = train_test_split(X_and, Y_and, test_size=0.5)
+Y_and_test = pd.DataFrame(Y_and_test)
+
+mlp = MLPClassifier(hidden_layer_sizes=(2,), activation='logistic', solver='lbfgs', max_iter=1000)
+mlp.fit(X_and, Y_and)   #training the model using the truth table
+preds= mlp.predict(X_and_test)  #predicting output of testing data
+print("X testing data: \n",X_and_test)
+print("Y testing data: \n",Y_and_test)
+print("Prediction :\n",preds)
+
+mlp_accuracy = accuracy_score(Y_and_test, preds)        #calculating the accuracy
+mlp_report = classification_report(Y_and_test, preds)   #calculating the precision, recall, f1-score
+
+print("Accuracy of the MLP classifier:", mlp_accuracy)
+print("Classification Report:\n",mlp_report)
+
+# OR GATE
+X_xor = XOR_df.iloc[0:, 0:2]
+Y_xor = XOR_df.iloc[0:, 2]
+#splitting the data into training and testing sets
+X_xor_train, X_xor_test, Y_xor_train, Y_xor_test = train_test_split(X_xor, Y_xor, test_size=0.5)
+Y_xor_test = pd.DataFrame(Y_xor_test)
+
+mlp = MLPClassifier(hidden_layer_sizes=(2,), activation='logistic', solver='lbfgs', max_iter=1000)
+mlp.fit(X_xor, Y_xor)   #training the model using the truth table
+xor_preds= mlp.predict(X_xor_test)  #predicting output of testing data
+print("X testing data: \n",X_xor_test)
+print("Y testing data: \n",Y_xor_test)
+print("Prediction :\n",xor_preds)
+
+xor_accuracy = accuracy_score(Y_xor_test, xor_preds)        #calculating the accuracy
+xor_report = classification_report(Y_xor_test, xor_preds)   #calculating the precision, recall, f1-score
+
+print("Accuracy of the MLP classifier:", xor_accuracy)
+print("Classification Report:\n", xor_report)
